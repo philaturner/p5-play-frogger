@@ -87,8 +87,9 @@ function draw(){
   //death or ending check
   if (dead || won){
     textSize(32);
-    fill(255, 153, 0);
+    fill(200, 0, 0);
     if (dead) text('#RIP - You scored: ' + calcScore(), width/2, height/2-20);
+    fill(255, 153, 0);
     if (won) text('#WON - You scored: ' + calcScore(), width/2, height/2-20);
   }
 
@@ -222,6 +223,8 @@ function keyPressed() {
 }
 
 function calcScore(){
+  var minimumMoves = 7;
+  var maxScore = 1000;
   if (dead) return 0
-  return map(moveCounter * 10,0,50,1000,0);
+  return floor((minimumMoves/moveCounter)*maxScore)
 }
