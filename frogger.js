@@ -223,5 +223,5 @@ function keyPressed() {
 
 function calcScore(){
   if (dead) return 0
-  return map(moveCounter * 10,0,1000,1000,0);
+  return map(moveCounter * 10,0,50,1000,0);
 }
