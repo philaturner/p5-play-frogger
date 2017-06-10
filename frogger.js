@@ -2,7 +2,7 @@ var GRID_SIZE = 64;
 var COLS = 8;
 var ROWS = 9;
 var MAX_CARS = 6;
-var MAX_LOGS = 6;
+var MAX_LOGS_P_ROW = 5;
 var MARGIN = 64;
 
 var player;
@@ -10,12 +10,18 @@ var imgdeath;
 var cars;
 var logs;
 var dead = false;
+var won = false;
 
 var roadTile;
 var waterTile;
+var flag;
+
+var moveCounter = 0;
+var score = 0;
 
 function preload(){
   imgdeath = loadImage('assets/frog-death.png');
+  imgInWater = loadImage('assets/frog-water.png');
   roadTile = loadImage('assets/raod-tile.png');
   waterTile = loadImage('assets/water-tile.png');
 }
@@ -36,10 +42,19 @@ function setup(){
     createCar(1, px, py + (GRID_SIZE/2), ang);  //type
   }
 
-  //setup logs
-  for (var i = 0; i < MAX_LOGS; i++){
+  //setup logs for first row
+  for (var i = 0; i < MAX_LOGS_P_ROW; i++){
     var ang = 360; //180 left  360 right
-    var row = floor(random(6, 8)) * GRID_SIZE;
+    var row = 6 * GRID_SIZE;
+    var py = height - row;
+    var px = floor(random(0, ROWS)) * (GRID_SIZE*2);
+    createLog(1, px, py + (GRID_SIZE/2), ang);  //type
+  }
+
+  //setup logs for second row
+  for (var i = 0; i < MAX_LOGS_P_ROW; i++){
+    var ang = 360; //180 left  360 right
+    var row = 7 * GRID_SIZE;
     var py = height - row;
     var px = floor(random(0, ROWS)) * (GRID_SIZE*2);
     createLog(1, px, py + (GRID_SIZE/2), ang);  //type
@@ -52,10 +67,30 @@ function setup(){
   player.scale = 1;
   player.position.x = floor(ROWS / 2) * (GRID_SIZE);
   player.position.y = height - (GRID_SIZE/2);
+
+  flag = createSprite(width/2,height/2);
+  var img  = loadImage("assets/flag.png");
+  flag.addImage(img);
+  flag.scale = 1;
+  flag.position.x = floor(ROWS / 2) * (GRID_SIZE);
+  flag.position.y = (GRID_SIZE/2);
+  flag.setCollider("rectangle", 0, 0, GRID_SIZE/2, GRID_SIZE/2);
 }
 
 function draw(){
   background(6,81,1); //dark green
+  fill(255);
+  textAlign(CENTER);
+  text("Use the arrow keys to move", width-85, 20);
+
+
+  //death or ending check
+  if (dead || won){
+    textSize(32);
+    fill(255, 153, 0);
+    if (dead) text('#RIP - You scored: ' + calcScore(), width/2, height/2-20);
+    if (won) text('#WON - You scored: ' + calcScore(), width/2, height/2-20);
+  }
 
   //draws in road tiles
   for (i = 4; i < 7; i++) {
@@ -71,6 +106,9 @@ function draw(){
     }
   }
 
+  //draws winning flag
+
+
   //check for sprites offscreen and reposition
   for (var i = 0; i < allSprites.length; i++){
     var s = allSprites[i];
@@ -82,8 +120,19 @@ function draw(){
 
   //update sprites & draw
   drawSprites();
+
+  //various collision
+  player.overlap(flag, winner);
   player.collide(cars, collided);
   player.overlap(logs, riding);
+  //if not on log but and over water tiles run function
+  if (!player.overlap(logs) && player.position.y > GRID_SIZE && player.position.y < GRID_SIZE*3){
+    inWater();
+  }
+}
+
+function winner(){
+  won = true;
 }
 
 function collided(){
@@ -93,8 +142,14 @@ function collided(){
 }
 
 function riding(){
-  console.log('Touched log');
+  //console.log('Touched log');
   player.setSpeed(2, 360);
+}
+
+function inWater(){
+  dead = true;
+  player.removeImage;
+  player.addImage(imgInWater);
 }
 
 function createCar(type, x, y, a){
@@ -144,20 +199,29 @@ function createLog(type, x, y, a){
 }
 
 function keyPressed() {
-  if (!dead){ //stops movement if dead
+  if (!dead && !won){ //stops movement if dead
     if(keyCode == UP_ARROW) {
       player.position.y += -GRID_SIZE
       player.setSpeed(0,0);
+      moveCounter++;
     } else if (keyCode == DOWN_ARROW) {
       player.position.y += GRID_SIZE
       player.setSpeed(0,0);
+      moveCounter++;
     } else if (keyCode == LEFT_ARROW) {
       player.position.x += -GRID_SIZE
       player.setSpeed(0,0);
+      moveCounter++;
     } else if (keyCode == RIGHT_ARROW) {
       player.position.x += GRID_SIZE
       player.setSpeed(0,0);
+      moveCounter++;
     }
   }
   return 0;
+}
+
+function calcScore(){
+  if (dead) return 0
+  return map(moveCounter * 10,0,1000,1000,0);
 }
