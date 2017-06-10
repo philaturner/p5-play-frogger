@@ -48,7 +48,7 @@ function setup(){
     var row = 6 * GRID_SIZE;
     var py = height - row;
     var px = floor(random(0, ROWS)) * (GRID_SIZE*2);
-    createLog(1, px, py + (GRID_SIZE/2), ang);  //type
+    createLog(1, px, py + (GRID_SIZE/2), ang, 2.5);  //type
   }
 
   //setup logs for second row
@@ -57,7 +57,7 @@ function setup(){
     var row = 7 * GRID_SIZE;
     var py = height - row;
     var px = floor(random(0, ROWS)) * (GRID_SIZE*2);
-    createLog(1, px, py + (GRID_SIZE/2), ang);  //type
+    createLog(1, px, py + (GRID_SIZE/2), ang, 3);  //type
   }
 
   //setup player
@@ -176,11 +176,11 @@ function createCar(type, x, y, a){
   return c;
 }
 
-function createLog(type, x, y, a){
+function createLog(type, x, y, a, s){
   var l = createSprite(x, y);
   var img  = loadImage("assets/log.png");  //TODO Use type below to add different images
   l.addImage(img);
-  l.setSpeed(2, a);
+  l.setSpeed(s, a);
   l.rotationSpeed = 0;
   l.type = type;
 
