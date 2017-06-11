@@ -7,15 +7,15 @@ var MARGIN = 64;
 var BASE_LOG_SPEED = 2.5;
 
 var player;
-var imgdeath;
 var cars;
 var logs;
+var flag;
 var dead = false;
 var won = false;
 
 var roadTile;
 var waterTile;
-var flag;
+var imgdeath;
 
 var moveCounter = 0;
 var score = 0;
@@ -28,9 +28,11 @@ function preload(){
 }
 
 function setup(){
+  //draw canvas and add to div
   var canvas = createCanvas(ROWS * GRID_SIZE , COLS * GRID_SIZE);
   canvas.parent('canvas-container');
 
+  //define sprit groups
   cars = new Group();
   logs = new Group();
 
@@ -49,7 +51,7 @@ function setup(){
     var row = 6 * GRID_SIZE;
     var py = height - row;
     var px = floor(random(0, ROWS)) * (GRID_SIZE*2);
-    createLog(1, px, py + (GRID_SIZE/2), ang, BASE_LOG_SPEED);  //type
+    createLog(1, px, py + (GRID_SIZE/2), ang, BASE_LOG_SPEED);
   }
 
   //setup logs for second row
@@ -58,7 +60,7 @@ function setup(){
     var row = 7 * GRID_SIZE;
     var py = height - row;
     var px = floor(random(0, ROWS)) * (GRID_SIZE*2);
-    createLog(1, px, py + (GRID_SIZE/2), ang, BASE_LOG_SPEED + 0.5);  //type
+    createLog(1, px, py + (GRID_SIZE/2), ang, BASE_LOG_SPEED + 0.5);  //increased log speed for top row
   }
 
   //setup player
@@ -69,6 +71,7 @@ function setup(){
   player.position.x = floor(ROWS / 2) * (GRID_SIZE);
   player.position.y = height - (GRID_SIZE/2);
 
+  //flag setup
   flag = createSprite(width/2,height/2);
   var img  = loadImage("assets/flag.png");
   flag.addImage(img);
@@ -80,6 +83,8 @@ function setup(){
 
 function draw(){
   background(6,81,1); //dark green
+
+  //instruction text
   fill(255);
   textAlign(CENTER);
   text("Use the arrow keys to move", width-85, 20);
@@ -120,11 +125,11 @@ function draw(){
   //update sprites & draw
   drawSprites();
 
-  //various collision
+  //various player collisions
   player.overlap(flag, winner);
   player.collide(cars, collided);
   player.overlap(logs, riding);
-  //if not on log but and over water tiles run function
+  //if not on log and over water tile
   if (!player.overlap(logs) && player.position.y > GRID_SIZE && player.position.y < GRID_SIZE*3){
     inWater();
   }
@@ -137,20 +142,21 @@ function winner(){
 function collided(){
   dead = true;
   player.removeImage;
-  player.addImage(imgdeath);
+  player.addImage(imgdeath); //update to death image
 }
 
 function riding(){
-  //console.log('Touched log');
+  //set player speed equal to log speed so it appears to be stuck on it
   player.setSpeed(BASE_LOG_SPEED, 360);
 }
 
 function inWater(){
   dead = true;
   player.removeImage;
-  player.addImage(imgInWater);
+  player.addImage(imgInWater); //update to drown image
 }
 
+//TODO should really be an object with logs extending from cars object
 function createCar(type, x, y, a){
   var c = createSprite(x, y);
   var img  = loadImage("assets/car.png");  //TODO Use type below to add different images
@@ -169,7 +175,6 @@ function createCar(type, x, y, a){
 
   c.mass =  2 + c.scale;
 
-  //c.setCollider("rectangle", 0, 0, 0, 0); //TODO Potentially use for collision
   cars.add(c);
   return c;
 }
@@ -182,7 +187,7 @@ function createLog(type, x, y, a, s){
   l.rotationSpeed = 0;
   l.type = type;
 
-  //TODO Build different car images and sizes? extend to lorry or something ?!?
+  //TODO Build different log images similar to the cars
   if(type == 1)
     l.scale = 1;
   if(type == 2)
@@ -192,7 +197,7 @@ function createLog(type, x, y, a, s){
 
   l.mass =  2 + l.scale;
 
-  l.setCollider("rectangle", 0, 0, GRID_SIZE/2, GRID_SIZE/2); //Sets the collide bounds of the log
+  l.setCollider("rectangle", 0, 0, GRID_SIZE/2, GRID_SIZE/2); //sets the collide bounds of the log
   logs.add(l);
   return l;
 }
@@ -224,5 +229,5 @@ function calcScore(){
   var minimumMoves = 7;
   var maxScore = 1000;
   if (dead) return 0
-  return floor((minimumMoves/moveCounter)*maxScore)
+  return floor((minimumMoves/moveCounter)*maxScore) //scaling score based on best possible
 }
