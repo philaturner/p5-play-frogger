@@ -4,6 +4,7 @@ var ROWS = 9;
 var MAX_CARS = 6;
 var MAX_LOGS_P_ROW = 5;
 var MARGIN = 64;
+var BASE_LOG_SPEED = 2.5;
 
 var player;
 var imgdeath;
@@ -48,7 +49,7 @@ function setup(){
     var row = 6 * GRID_SIZE;
     var py = height - row;
     var px = floor(random(0, ROWS)) * (GRID_SIZE*2);
-    createLog(1, px, py + (GRID_SIZE/2), ang, 2.5);  //type
+    createLog(1, px, py + (GRID_SIZE/2), ang, BASE_LOG_SPEED);  //type
   }
 
   //setup logs for second row
@@ -57,7 +58,7 @@ function setup(){
     var row = 7 * GRID_SIZE;
     var py = height - row;
     var px = floor(random(0, ROWS)) * (GRID_SIZE*2);
-    createLog(1, px, py + (GRID_SIZE/2), ang, 3);  //type
+    createLog(1, px, py + (GRID_SIZE/2), ang, BASE_LOG_SPEED + 0.5);  //type
   }
 
   //setup player
@@ -107,9 +108,6 @@ function draw(){
     }
   }
 
-  //draws winning flag
-
-
   //check for sprites offscreen and reposition
   for (var i = 0; i < allSprites.length; i++){
     var s = allSprites[i];
@@ -144,7 +142,7 @@ function collided(){
 
 function riding(){
   //console.log('Touched log');
-  player.setSpeed(2, 360);
+  player.setSpeed(BASE_LOG_SPEED, 360);
 }
 
 function inWater(){
